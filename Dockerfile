@@ -18,7 +18,8 @@ RUN sh /app/install.sh
 
 
 # Ejecutar install.sh después de npm install
-RUN /app/install.sh
+RUN sh /app/install.sh
+
 
 # Instalar dependencias de Node.js
 RUN npm install
