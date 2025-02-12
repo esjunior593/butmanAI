@@ -22,7 +22,10 @@ RUN sh /app/install.sh
 
 
 # Instalar dependencias de Node.js
+USER root
 RUN npm install
+USER pptruser
+
 
 # Exponer el puerto para el servidor (si es necesario)
 EXPOSE 3000
