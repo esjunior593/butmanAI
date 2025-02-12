@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "🔧 Instalando dependencias para Puppeteer..."
+echo "🔧 Instalando dependencias necesarias..."
 apt-get update && apt-get install -y \
     libnss3 \
     libatk-bridge2.0-0 \

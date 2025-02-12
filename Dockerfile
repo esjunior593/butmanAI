@@ -4,19 +4,21 @@ FROM ghcr.io/puppeteer/puppeteer:latest
 # Configurar el directorio de trabajo
 WORKDIR /app
 
-# Copiar archivos necesarios
+# Copiar archivos del proyecto
 COPY package*.json ./
 COPY bot.js ./
 COPY config.js ./
-RUN mkdir -p /app/public
 COPY public ./public
+COPY install.sh ./  # ⬅️ Asegura que esta línea esté aquí
 
-RUN rm -f package-lock.json && npm install
+# Dar permisos de ejecución a install.sh
+RUN chmod +x install.sh
 
 # Instalar dependencias de Node.js
-USER root
 RUN npm install
-USER pptruser
+
+# Ejecutar install.sh después de npm install
+RUN ./install.sh
 
 # Exponer el puerto para el servidor (si es necesario)
 EXPOSE 3000
