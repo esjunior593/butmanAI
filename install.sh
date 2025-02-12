@@ -12,6 +12,7 @@ apt-get update && apt-get install -y \
     libasound2 \
     xdg-utils \
     fonts-liberation \
-    libgbm1  # <-- Esta es la librería faltante
+    libgbm1 \
+    libX11-xcb1  # <-- Librería faltante
 
 echo "✅ Dependencias instaladas correctamente."
