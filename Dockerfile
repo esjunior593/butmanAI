@@ -1,20 +1,16 @@
-# Usa Playwright en lugar de Puppeteer para evitar problemas en Railway
-FROM mcr.microsoft.com/playwright:v1.39.0-focal
+# Usa una imagen compatible con Puppeteer en Render
+FROM ghcr.io/puppeteer/puppeteer:latest
 
-# Configuración del entorno
+# Crear directorio de trabajo
 WORKDIR /app
 
-# Copiar archivos del proyecto
+# Copiar los archivos del proyecto
 COPY package*.json ./
 RUN npm install --omit=dev
 
-# Copiar el código del bot
 COPY . .
 
-# Asegurar permisos correctos para Playwright
-RUN npx playwright install --with-deps
-
-# Exponer puerto (si usas Express para mostrar el QR)
+# Exponer el puerto para la API del QR
 EXPOSE 3000
 
 # Comando de inicio
