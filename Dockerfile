@@ -23,8 +23,9 @@ RUN sh /app/install.sh
 
 # Instalar dependencias de Node.js
 USER root
-RUN npm install
+RUN npm install --unsafe-perm=true --allow-root
 USER pptruser
+
 
 
 # Exponer el puerto para el servidor (si es necesario)
