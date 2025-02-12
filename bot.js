@@ -13,13 +13,12 @@ if (!fs.existsSync('public')) {
 // Servir archivos estáticos (para mostrar el QR)
 app.use(express.static('public'));
 
-// Crear la sesión de WhatsApp con Venom
+// Configurar Venom-Bot con Playwright en Railway
 venom
   .create({
     session: 'whatsapp-session',
-    multidevice: false,  
-    headless: true,      
-    logQR: true,         
+    multidevice: true,
+    headless: true,  
     browserArgs: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -29,14 +28,14 @@ venom
       '--single-process',
       '--no-zygote'
     ],
-    executablePath: '/usr/bin/chromium-browser'
+    useChrome: false,  // Indica que se usará Playwright en lugar de Puppeteer
   })
   .then((client) => {
     console.log("✅ Bot de WhatsApp iniciado correctamente");
 
     client.onQR((qrCode) => {
       console.log('📌 QR generado. Escanéalo desde los logs de Railway:');
-      console.log(qrCode);  // 🔥 Imprime el QR en los logs
+      console.log(qrCode);
 
       const qrImage = Buffer.from(qrCode.replace(/^data:image\/png;base64,/, ""), "base64");
       fs.writeFileSync("public/qr.png", qrImage);

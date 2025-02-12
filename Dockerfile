@@ -1,20 +1,21 @@
-# Usar una imagen de Playwright que ya incluye Chromium y Puppeteer
+# Usa Playwright en lugar de Puppeteer para evitar problemas en Railway
 FROM mcr.microsoft.com/playwright:v1.39.0-focal
 
-# Configurar el directorio de trabajo
+# Configuración del entorno
 WORKDIR /app
 
 # Copiar archivos del proyecto
 COPY package*.json ./
-COPY bot.js ./
-COPY config.js ./
-COPY public ./public
+RUN npm install --omit=dev
 
-# Instalar dependencias de Node.js y Puppeteer sin permisos restringidos
-RUN npm install --unsafe-perm=true --allow-root
+# Copiar el código del bot
+COPY . .
 
-# Exponer el puerto para el servidor (si es necesario)
+# Asegurar permisos correctos para Playwright
+RUN npx playwright install --with-deps
+
+# Exponer puerto (si usas Express para mostrar el QR)
 EXPOSE 3000
 
-# Iniciar el bot
+# Comando de inicio
 CMD ["node", "bot.js"]
