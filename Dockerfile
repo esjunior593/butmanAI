@@ -14,7 +14,8 @@ COPY ./install.sh /app/install.sh
 
 
 # Dar permisos de ejecución a install.sh
-RUN chmod +x /app/install.sh
+RUN sh /app/install.sh
+
 
 # Ejecutar install.sh después de npm install
 RUN /app/install.sh
