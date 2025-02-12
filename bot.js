@@ -1,23 +1,25 @@
 const venom = require('venom-bot');
-const axios = require('axios');
-const mysql = require('mysql2/promise');
-const config = require('./config');
 const fs = require('fs');
 const express = require('express');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Servir archivos estáticos para mostrar el QR
+// Crear la carpeta "public" si no existe
+if (!fs.existsSync('public')) {
+    fs.mkdirSync('public');
+}
+
+// Servir archivos estáticos (para mostrar el QR)
 app.use(express.static('public'));
 
 // Crear la sesión de WhatsApp con Venom
 venom
   .create({
     session: 'whatsapp-session',
-    multidevice: false,  // Desactiva multi-dispositivo para evitar problemas
-    headless: true,      // No abre una ventana gráfica
-    logQR: true,         // Muestra el QR en los logs de Railway
+    multidevice: false,  
+    headless: true,      
+    logQR: true,         
     browserArgs: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -34,20 +36,10 @@ venom
 
     client.onQR((qrCode) => {
       console.log('📌 QR generado. Escanéalo desde los logs de Railway:');
-      console.log(qrCode);  // 🔥 Muestra el QR en los logs
+      console.log(qrCode);  // 🔥 Imprime el QR en los logs
 
       const qrImage = Buffer.from(qrCode.replace(/^data:image\/png;base64,/, ""), "base64");
       fs.writeFileSync("public/qr.png", qrImage);
-    });
-
-    client.onStateChange((state) => {
-      console.log(`🔄 Estado de sesión: ${state}`);
-      if (state === 'UNPAIRED' || state === 'UNPAIRED_IDLE') {
-        console.log('⚠️ Se perdió la sesión. Generando un nuevo QR...');
-        client.logout().then(() => {
-          console.log("🔄 Sesión cerrada. Esperando nuevo QR...");
-        });
-      }
     });
 
   })
