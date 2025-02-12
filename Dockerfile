@@ -8,6 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY bot.js ./
 COPY config.js ./
+RUN mkdir -p /app/public
 COPY public ./public
 
 # Instalar dependencias de Node.js
