@@ -1,6 +1,7 @@
 const venom = require('venom-bot');
 const fs = require('fs');
 const express = require('express');
+const { chromium } = require('playwright'); // Usar Playwright en lugar de Puppeteer
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,36 +14,48 @@ if (!fs.existsSync('public')) {
 // Servir archivos estáticos (para mostrar el QR)
 app.use(express.static('public'));
 
-// Configurar Venom-Bot con Playwright en Railway
-venom
-  .create({
-    session: 'whatsapp-session',
-    multidevice: true,
-    headless: true,  
-    browserArgs: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--disable-gpu',
-      '--single-process',
-      '--no-zygote'
-    ],
-    useChrome: false,  // Indica que se usará Playwright en lugar de Puppeteer
-  })
-  .then((client) => {
-    console.log("✅ Bot de WhatsApp iniciado correctamente");
-
-    client.onQR((qrCode) => {
-      console.log('📌 QR generado. Escanéalo desde los logs de Railway:');
-      console.log(qrCode);
-
-      const qrImage = Buffer.from(qrCode.replace(/^data:image\/png;base64,/, ""), "base64");
-      fs.writeFileSync("public/qr.png", qrImage);
+// Configurar Playwright manualmente
+async function startBot() {
+    const browser = await chromium.launch({
+        headless: true,
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--disable-gpu',
+            '--single-process',
+            '--no-zygote'
+        ]
     });
 
-  })
-  .catch(error => console.log('❌ Error al iniciar bot:', error));
+    console.log("✅ Navegador Playwright iniciado correctamente");
+
+    venom
+      .create({
+        session: 'whatsapp-session',
+        multidevice: true,
+        headless: true,
+        browserArgs: [],
+        useChrome: false, // Asegura que no intente usar Puppeteer
+        executablePath: browser._initializer.executablePath // Usa Playwright en lugar de Puppeteer
+      })
+      .then((client) => {
+        console.log("✅ Bot de WhatsApp iniciado correctamente");
+
+        client.onQR((qrCode) => {
+          console.log('📌 QR generado. Escanéalo desde los logs de Railway:');
+          console.log(qrCode);
+
+          const qrImage = Buffer.from(qrCode.replace(/^data:image\/png;base64,/, ""), "base64");
+          fs.writeFileSync("public/qr.png", qrImage);
+        });
+
+      })
+      .catch(error => console.log('❌ Error al iniciar bot:', error));
+}
+
+startBot();
 
 // Servir el QR desde un archivo
 app.get('/qr', (req, res) => {
