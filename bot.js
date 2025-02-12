@@ -14,7 +14,7 @@ if (!fs.existsSync('public')) {
 // Servir archivos estáticos (para mostrar el QR)
 app.use(express.static('public'));
 
-// Configurar Playwright manualmente
+// Iniciar Playwright manualmente antes de Venom-Bot
 async function startBot() {
     const browser = await chromium.launch({
         headless: true,
@@ -37,7 +37,7 @@ async function startBot() {
         multidevice: true,
         headless: true,
         browserArgs: [],
-        useChrome: false, // Asegura que no intente usar Puppeteer
+        useChrome: false, // Evita que use Puppeteer
         executablePath: browser._initializer.executablePath // Usa Playwright en lugar de Puppeteer
       })
       .then((client) => {
