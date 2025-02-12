@@ -1,0 +1,16 @@
+{
+  "name": "whatsapp-bot",
+  "version": "1.0.0",
+  "description": "Bot de WhatsApp con Venom-Bot y MySQL en Railway",
+  "main": "bot.js",
+  "scripts": {
+    "postinstall": "bash install.sh",
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "axios": "^1.5.0",
+    "express": "^4.21.2",
+    "mysql2": "^3.3.4",
+    "venom-bot": "^4.0.1"
+  }
+}
