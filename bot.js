@@ -15,8 +15,9 @@ app.use(express.static('public'));
 venom
   .create({
     session: 'whatsapp-session',
-    multidevice: true,
-    headless: true,
+    multidevice: false,  // Desactivar multi-dispositivo para asegurar que pida el QR
+    headless: false,      // Mostrar la ventana del navegador en Railway
+    logQR: true,          // Mostrar el QR en los logs de Railway
     browserArgs: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -26,41 +27,19 @@ venom
       '--single-process',
       '--no-zygote'
     ],
-    executablePath: '/usr/bin/chromium-browser' // Usar Chromium del sistema
+    executablePath: '/usr/bin/chromium-browser'
   })
   .then((client) => {
     console.log("✅ Bot de WhatsApp iniciado correctamente");
 
-    client.onQR((base64QR) => {
-      console.log('📌 QR generado, guardándolo en public/qr.png');
-      const qrImage = Buffer.from(base64QR.replace(/^data:image\/png;base64,/, ""), "base64");
+    client.onQR((qrCode) => {
+      console.log('📌 QR generado, escanéalo desde los logs de Railway:');
+      console.log(qrCode);  // Imprime el QR en los logs
+
+      // Guardar el QR como imagen para verlo en la URL
+      const fs = require('fs');
+      const qrImage = Buffer.from(qrCode.replace(/^data:image\/png;base64,/, ""), "base64");
       fs.writeFileSync("public/qr.png", qrImage);
-    });
-
-    // Escuchar mensajes
-    client.onMessage(async (message) => {
-      if (message.body.startsWith('/cod ')) {
-        const correo = message.body.split(' ')[1];
-        if (!correo || !correo.includes('@')) {
-          client.sendText(message.from, '⚠️ Formato incorrecto. Usa: /cod correo@gmail.com');
-          return;
-        }
-
-        try {
-          const apiUrl = `https://script.google.com/macros/s/AKfycbymWzWk196Xi6ayjvnKbWOilSOCcR7UBGq-a2Af4AF-eyNMNwSkPB6fbDCqlapSHMF9xQ/exec?email=${encodeURIComponent(correo)}`;
-          const response = await axios.get(apiUrl);
-          const data = response.data;
-
-          if (data.mensaje) {
-            client.sendText(message.from, `📌 Respuesta de la API:\n${data.mensaje}`);
-          } else {
-            client.sendText(message.from, '❌ No se encontró información para este correo.');
-          }
-        } catch (error) {
-          client.sendText(message.from, '⚠️ Hubo un error al buscar la información.');
-          console.error(error);
-        }
-      }
     });
   })
   .catch(error => console.log('❌ Error al iniciar bot:', error));
