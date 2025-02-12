@@ -11,8 +11,12 @@ COPY config.js ./
 RUN mkdir -p /app/public
 COPY public ./public
 
+RUN rm -f package-lock.json && npm install
+
 # Instalar dependencias de Node.js
+USER root
 RUN npm install
+USER pptruser
 
 # Exponer el puerto para el servidor (si es necesario)
 EXPOSE 3000
