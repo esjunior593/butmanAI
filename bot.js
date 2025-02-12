@@ -15,9 +15,9 @@ app.use(express.static('public'));
 venom
   .create({
     session: 'whatsapp-session',
-    multidevice: false,
-    headless: true,  // Ejecutar en modo headless para evitar errores de X11
-    logQR: true,  // Mostrar QR en logs para Railway
+    multidevice: false,  // Desactiva multi-dispositivo para evitar problemas
+    headless: true,      // No abre una ventana gráfica
+    logQR: true,         // Muestra el QR en logs de Railway
     browserArgs: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -36,13 +36,22 @@ venom
       console.log('📌 QR generado, escanéalo desde los logs de Railway:');
       console.log(qrCode);
 
-      const fs = require('fs');
       const qrImage = Buffer.from(qrCode.replace(/^data:image\/png;base64,/, ""), "base64");
       fs.writeFileSync("public/qr.png", qrImage);
     });
+
+    client.onStateChange((state) => {
+      console.log(`🔄 Estado de sesión: ${state}`);
+      if (state === 'UNPAIRED' || state === 'UNPAIRED_IDLE') {
+        console.log('⚠️ Se perdió la sesión. Generando un nuevo QR...');
+        client.logout().then(() => {
+          console.log("🔄 Se ha cerrado la sesión correctamente. Esperando nuevo QR...");
+        });
+      }
+    });
+
   })
   .catch(error => console.log('❌ Error al iniciar bot:', error));
-
 
 // Servir el QR desde un archivo
 app.get('/qr', (req, res) => {
