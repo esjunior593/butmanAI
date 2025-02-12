@@ -9,16 +9,16 @@ COPY package*.json ./
 COPY bot.js ./
 COPY config.js ./
 COPY public ./public
-COPY install.sh ./  # ⬅️ Asegura que esta línea esté aquí
+COPY install.sh /app/install.sh  # Asegura que se copie en /app
 
 # Dar permisos de ejecución a install.sh
-RUN chmod +x install.sh
+RUN chmod +x /app/install.sh
+
+# Ejecutar install.sh después de npm install
+RUN /app/install.sh
 
 # Instalar dependencias de Node.js
 RUN npm install
-
-# Ejecutar install.sh después de npm install
-RUN ./install.sh
 
 # Exponer el puerto para el servidor (si es necesario)
 EXPOSE 3000
