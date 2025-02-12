@@ -15,9 +15,9 @@ app.use(express.static('public'));
 venom
   .create({
     session: 'whatsapp-session',
-    multidevice: false,  // Desactivar multi-dispositivo para asegurar que pida el QR
-    headless: false,      // Mostrar la ventana del navegador en Railway
-    logQR: true,          // Mostrar el QR en los logs de Railway
+    multidevice: false,
+    headless: true,  // Ejecutar en modo headless para evitar errores de X11
+    logQR: true,  // Mostrar QR en logs para Railway
     browserArgs: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -34,15 +34,15 @@ venom
 
     client.onQR((qrCode) => {
       console.log('📌 QR generado, escanéalo desde los logs de Railway:');
-      console.log(qrCode);  // Imprime el QR en los logs
+      console.log(qrCode);
 
-      // Guardar el QR como imagen para verlo en la URL
       const fs = require('fs');
       const qrImage = Buffer.from(qrCode.replace(/^data:image\/png;base64,/, ""), "base64");
       fs.writeFileSync("public/qr.png", qrImage);
     });
   })
   .catch(error => console.log('❌ Error al iniciar bot:', error));
+
 
 // Servir el QR desde un archivo
 app.get('/qr', (req, res) => {
