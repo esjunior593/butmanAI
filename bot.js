@@ -37,18 +37,21 @@ async function startBot() {
   const sessionName = 'whatsapp-session';
 
   venom
-    .create({
-      session: sessionName,
-      multidevice: true,
-      headless: true,
-      browserArgs: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--disable-gpu'
-      ]
-    })
+  .create({
+    session: 'whatsapp-session',
+    multidevice: true,
+    headless: true,
+    browserArgs: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--disable-gpu',
+      '--single-process',
+      '--no-zygote'
+    ],
+    executablePath: '/usr/bin/chromium-browser' // Usar Chromium del sistema
+  })
     .then(client => {
       console.log("✅ Bot de WhatsApp iniciado correctamente");
 
